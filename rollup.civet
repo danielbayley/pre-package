@@ -1,0 +1,38 @@
+"civet coffee-comment coffee-interpolation auto-const"
+
+import civet from "@danielx/civet/rollup"
+import tla   from "rollup-plugin-tla"
+
+include = "**.civet*"
+generatedCode = "es2015"
+
+{NODE_ENV, npm_lifecycle_event, npm_package_main} = process.env
+production = NODE_ENV is "production" or npm_lifecycle_event is "build"
+
+plugins = [civet ts: "civet"]
+
+export default =>
+  if production
+    strip  = await import "@rollup/plugin-strip"
+    clean  = await import  "rollup-plugin-cleanup"
+    pretty = await import  "rollup-plugin-prettier"
+    plugins.push
+      strip.default {include}
+      clean.default()
+      pretty.default { cwd: npm_package_main }
+
+  return [{
+    input: "src/read.civet"
+    plugins
+    output: [{
+      file: process.env.npm_package_exports___read
+      generatedCode
+    }]
+  },
+    input: "src/pnpmfile.civet"
+    plugins: plugins.concat tla()
+    output: {
+      file: npm_package_main
+      generatedCode
+      format: "umd"
+  }]
