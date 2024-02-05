@@ -1,0 +1,4 @@
+export order = (order) => (a, b) =>
+  order.indexOf(a) - order.indexOf b
+
+export merge = (metadata, transform) => { ...metadata, ...transform metadata }
