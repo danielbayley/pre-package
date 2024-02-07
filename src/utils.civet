@@ -1,4 +1,9 @@
-export order = (order) => (a, b) =>
-  order.indexOf(a) - order.indexOf b
+import type {PackageJson} from "type-fest"
+import type {Plugin} from "./types"
 
-export merge = (metadata, transform) => { ...metadata, ...transform metadata }
+export order = (order: string[]) =>
+  (a: string, b: string): number =>
+    order.indexOf(a) - order.indexOf b
+
+export merge = (metadata: PackageJson, transform: Plugin): PackageJson =>
+  { ...metadata, ...transform metadata }

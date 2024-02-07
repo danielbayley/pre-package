@@ -1,0 +1,12 @@
+import type {ParsedPath}  from "node:path"
+import type {PackageJson} from "type-fest"
+
+export type Entry  = [string, string | undefined]
+export type Plugin = (transform: PackageJson) => PackageJson
+
+export interface ProcessEnv extends NodeJS.ProcessEnv
+  readonly TABSIZE?: string
+
+export interface Read
+  readonly path: ParsedPath
+  metadata: PackageJson

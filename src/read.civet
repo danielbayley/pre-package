@@ -1,21 +1,26 @@
-"civet auto-const"
 import {readFile} from "node:fs/promises"
 import path from "node:path"
-import glob from "fast-glob"
+
+import glob, {Options} from "fast-glob"
 import * as YAML from "yaml"
 
-export default (options = {}) =>
-  options.absolute = true
-  [pkg] = await glob "package.{y?(a)ml,json}", options
-  content = await readFile pkg, "utf8"
-  {parse} = pkg.endsWith(".json") ? JSON : YAML
-  metadata = parse content, merge: true
+import type {PackageJson, Entries} from "type-fest"
+import type {ProcessEnv, Read, Entry} from "./types"
 
-  npm_package_ = Object.entries process.env
-    .filter [env] => env?.startsWith "npm_package_"
+export default (options: Options = {}): Promise<Read> =>
+  options.absolute = true
+  const [pkg]: string[] = await glob "package.{y?(a)ml,json}", options
+
+  const content: string = await readFile pkg, "utf8"
+  const metadata: PackageJson = pkg.endsWith(".json")
+    ? JSON.parse content
+    : YAML.parse content, merge: true
+
+  const npm_package_: Entries<ProcessEnv> = Object.entries process.env
+    .filter ([env]: Entry): boolean => env?.startsWith "npm_package_"
 
   return {
-    metadata
     path: path.parse pkg
+    metadata
     ...Object.fromEntries npm_package_
   }

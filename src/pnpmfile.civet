@@ -1,20 +1,22 @@
-"civet auto-const"
-import {writeFile} from "node:fs/promises"
-import {rmSync}    from "node:fs"
+import {writeFile}  from "node:fs/promises"
+import {rmSync}     from "node:fs"
+import {ParsedPath} from "node:path"
+
 import clean from "node-cleanup"
-import read  from "read"
-import {order, merge} from "utils"
 
-{env, argv} = process
-[command] = argv[2..]
+import {order, merge} from "./utils"
+import read from "./read"
 
-commands = [
+import type {PackageJson} from "type-fest"
+import type {ProcessEnv, Read} from "./types"
+
+const {env, argv}: NodeJS.Process = process
+const [command]: string[] = argv[2..]
+const commands:  string[] = [
   "add"
   "import"
   "i"
   "install"
-  "it"
-  "install-test"
   "ln"
   "link"
   "prune"
@@ -33,26 +35,26 @@ commands = [
   "root"
 ]
 
-unless command in commands or process.env.npm_lifecycle_event?
-  {path, metadata} = await read()
+unless command in commands or env.npm_lifecycle_event?
+  const {path, metadata}: Read = await read()
 
-  pattern = /pre-package-p(lugin|reset)/
-  last = ["pre-package-plugin-normalize"]
+  const pattern: RegExp = /pre-package-p(lugin|reset)/
+  const last: string[] = ["pre-package-plugin-normalize"]
 
-  plugins = Object.keys metadata.devDependencies
-    ?.filter &.match pattern
-    ?.sort order last
+  const processed: PackageJson = Object.keys metadata.devDependencies ?? {}
+    .filter &.match pattern
+    .sort order last
     .map require
     .flat()
-
-  metadata = plugins?.reduce merge, metadata
+    .reduce merge, metadata
 
   if path.ext is ".yaml"
-    await writeFile "package.json", JSON.stringify metadata
+    const json: string = JSON.stringify processed
+    await writeFile "package.json", json
   else
-    indent = parseInt(env.TABSIZE) || 2
-    {stringify} = await import "yaml"
-    yaml = stringify metadata, {indent}
+    const indent: number = parseInt env.TABSIZE ?? "2"
+    const {stringify}  = await import "yaml"
+    const yaml: string = stringify processed, {indent}
     try await writeFile "package.yaml", yaml, flag: "wx"
 
   clean => rmSync "package.json", force: true

@@ -1,25 +1,31 @@
-"civet coffee-comment coffee-interpolation auto-const"
-
+import {defineConfig} from "rollup"
 import civet from "@danielx/civet/rollup"
 import tla   from "rollup-plugin-tla"
 
-include = "**.civet*"
-generatedCode = "es2015"
+import type {RollupOptions, InputPluginOption, OutputPlugin, GeneratedCodePreset} from "rollup"
+import type {PluginOptions} from "@danielx/civet/unplugin"
+import type {ProcessEnv}    from "./src/types"
 
-{NODE_ENV, npm_lifecycle_event, npm_package_main} = process.env
-production = NODE_ENV is "production" or npm_lifecycle_event is "build"
+const {NODE_ENV, npm_lifecycle_event, npm_package_main}: ProcessEnv = process.env
+const production: boolean = NODE_ENV is "production" or npm_lifecycle_event is "build"
 
-plugins = [civet ts: "civet"]
+const include: string = "**.civet*"
+const options: PluginOptions = ts: "civet"
+const plugins: InputPluginOption = [civet options]
+const generatedCode: GeneratedCodePreset = "es2015"
 
-export default =>
+export default defineConfig (options: RollupOptions): Promise<RollupOptions[]> =>
   if production
-    strip  = await import "@rollup/plugin-strip"
-    clean  = await import  "rollup-plugin-cleanup"
-    pretty = await import  "rollup-plugin-prettier"
+    const strip  = await import "@rollup/plugin-strip"
+    const stripType:  OutputPlugin = strip.default
+    const clean  = await import  "rollup-plugin-cleanup"
+    const cleanType:  OutputPlugin = clean.default
+    const pretty = await import  "rollup-plugin-prettier"
+    const prettyType: OutputPlugin = pretty.default
     plugins.push
       strip.default {include}
       clean.default()
-      pretty.default { cwd: npm_package_main }
+      pretty.default {cwd: npm_package_main}
 
   return [{
     input: "src/read.civet"
