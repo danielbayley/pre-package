@@ -38,8 +38,8 @@ const commands:  string[] = [
 unless command in commands or env.npm_lifecycle_event?
   const {path, metadata}: Read = await read()
 
-  const pattern: RegExp = /pre-package-p(lugin|reset)/
-  const last: string[] = ["pre-package-plugin-normalize"]
+  const pattern: RegExp =  /pre-package[/-]p(lugin|reset)/
+  const last: string[] = ["@pre-package/plugin-normalize"]
 
   const processed: PackageJson = Object.keys metadata.devDependencies ?? {}
     .filter &.match pattern
