@@ -3,4 +3,8 @@
 
 # Node/[p]npm
 node_modules/
-*.json
+package.json
+*.js
+
+# TypeScript
+*.ts*
