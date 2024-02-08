@@ -29,7 +29,12 @@ devDependencies:
   type-fest: ^4.10.2
   typescript: ^5.3.3
 
-prettier: "@danielbayley/prettier-config"
+prettier:
+  useTabs: false
+  tabWidth: 2
+  printWidth: 100
+  singleQuote: false
+  semi: false
 
 scripts:
   test: >-
