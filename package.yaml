@@ -32,4 +32,9 @@ devDependencies:
 prettier: "@danielbayley/prettier-config"
 
 scripts:
+  test: >-
+    civet --compile {.,src}/*.civet --output .ts &&
+    tsc --noEmit && pnpm clean
+
   build: rollup --configPlugin @danielx/civet/rollup --config rollup.civet
+  clean: rm -f {src,.}/*.ts*
